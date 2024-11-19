@@ -8,13 +8,14 @@ from dir_configs import add_rootpath
 
 class ClassMapping(Enum):
     performing = 1
-    not_performing = 0
+    non_performing = 0
 
 
 @dataclass
 class BaseFeatureConfig:
     base_path: str
-    version: int
+    input_version: int
+    output_version: int
     output_dir: str
     size: List[int] = field(default_factory=lambda: [224,224])
 
@@ -25,9 +26,11 @@ class BaseFeatureConfig:
         return BaseFeatureConfig(**input_dict)
 
     def __post_init__(self):
-        self.base_path = add_rootpath(self.base_path)
+        self.base_path = add_rootpath(
+            os.path.join(self.base_path, f'version_{self.input_version}')
+        )
         self.output_dir = os.path.join(
             add_rootpath(self.output_dir),
-            f'version_{self.version}'
+            f'version_{self.output_version}'
         )
         os.makedirs(self.output_dir, exist_ok=True)

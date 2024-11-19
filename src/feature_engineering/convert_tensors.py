@@ -5,7 +5,6 @@ from PIL import Image
 from torchvision import transforms
 
 from feature_engineering.base_feature_config import BaseFeatureConfig, ClassMapping
-from pytorch_model_framework.io_strategy import LocalStrategy
 
 def get_transforms():
     transforms_list = transforms.Compose(
@@ -34,12 +33,12 @@ class ConvertTensorHandler:
 
 
 
-def convert_tensors(cls, base_path, config:BaseFeatureConfig):
+def convert_tensors(cls,config:BaseFeatureConfig):
     handler =ConvertTensorHandler(
         config=config
     )
     os.makedirs(config.output_dir, exist_ok=True)
-    cls_path = os.path.join(base_path, cls)
+    cls_path = os.path.join(config.base_path, cls)
     files = os.listdir(cls_path)
     for file in files:
         out_file = os.path.join(config.output_dir,f'{file[:-4]}.pt')
