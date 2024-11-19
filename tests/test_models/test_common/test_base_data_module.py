@@ -26,6 +26,7 @@ class TestBaseDataModule:
             num_workers=1,
             prefetch_factor=1,
             num_classes=1,
+                background_class=0,
             split_file_name='train_test_split_dummy'
             )
             data_module = BaseDataModule(

@@ -7,7 +7,8 @@ from feature_engineering.base_feature_config import BaseFeatureConfig
 def test_feature_config(mock_os_makedirs):
     config = BaseFeatureConfig(
         base_path='some-path',
-        version=1,
+        input_version=1,
+        output_version=1,
         output_dir='some-output-dir',
     )
     assert config.size == [224,224]
