@@ -8,7 +8,7 @@ config = BaseFeatureConfig(
     input_version=0,
     output_version=0,
     base_path='data/raw_data',
-    output_dir='data/tensors'
+    output_dir='data'
 )
 
 for cls in os.listdir(config.base_path):

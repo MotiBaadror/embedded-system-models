@@ -31,6 +31,6 @@ class BaseFeatureConfig:
         )
         self.output_dir = os.path.join(
             add_rootpath(self.output_dir),
-            f'version_{self.output_version}'
+            f'version_{self.output_version}/tensors'
         )
         os.makedirs(self.output_dir, exist_ok=True)

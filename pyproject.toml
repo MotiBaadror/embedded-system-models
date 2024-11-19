@@ -12,6 +12,8 @@ pytorch-lightning = "^2.4.0"
 torch = "^2.5.1"
 torchvision = "^0.20.1"
 pillow = "^11.0.0"
+scikit-learn = "^1.5.2"
+boto3 = "^1.35.64"
 
 
 [build-system]

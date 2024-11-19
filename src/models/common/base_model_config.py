@@ -1,5 +1,8 @@
 from dataclasses import dataclass, field
-from typing import List
+from datetime import datetime
+from typing import List, Optional
+
+from pytorch_model_framework.model.model_configs import DataConfig
 
 
 @dataclass
@@ -13,10 +16,23 @@ class BaseModelConfig:
 
 @dataclass
 class BaseDataConfig:
-    data_dir: float
+    input_path: str
+    output_path: str
+    batch_size: int
+    test_batch_size: int
+    time_window: int
     train_size: float
-    test_size: float
     val_size: float
+    test_size: float
+    num_workers: int
+    prefetch_factor: int
+    num_classes: int
+    background_class: int = 20
+    s3_source_input_path: Optional[str] = None
+    experiment_descriptor: Optional[str] = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
+    split_file_name: str = None
+    data_version: int = None
+
 
 
     def from_dict(self, input_dict):

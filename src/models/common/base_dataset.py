@@ -1,5 +1,6 @@
 import os
 
+import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
@@ -13,11 +14,10 @@ class BaseCreativeDataset(Dataset):
         self.transforms = transforms
         self.base_path = add_rootpath(base_path)
 
-    def __getitem__(self, file_name):
-        image_path = os.path.join(self.base_path,file_name)
-        image = Image.open(image_path).convert("RGB")
-        image = self.transforms(image)
-        return image
+    def __getitem__(self, id):
+        x,y = torch.load(os.path.join(self.base_path,self.file_names[id]))
+        x = self.transforms(x)
+        return (x,y)
 
     def __len__(self):
         return len(self.file_names)
