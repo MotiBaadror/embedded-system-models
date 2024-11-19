@@ -11,7 +11,8 @@ class BaseDataConfig(DataConfig):
     test_size: float = None
     split_file_name: str = None
 
-    def from_dict(self, input_dict):
+    @staticmethod
+    def from_dict(input_dict):
         return BaseDataConfig(**input_dict)
 
 

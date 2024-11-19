@@ -11,13 +11,13 @@ from models.resnet.resnet_full_config import ResnetFullConfig
 
 
 def do_work():
-    training_location = TrainingLocation.LOCAL.value
+    training_location = TrainingLocation.LOCAL
     output_path = training_location.value.output_path
 
     experiment_name = "test_run"
     tensor_version = 0
     dataset_name ='test_run'
-    input_path = training_location.input_path +f'/version_{tensor_version}'
+    input_path = training_location.value.input_path +f'/version_{tensor_version}'
 
     config = ResnetFullConfig(
         model_config=ResnetModelConfig(
@@ -37,7 +37,8 @@ def do_work():
             gamma=0.1,
             focal_loss_alpha=0.1,
             focal_loss_gamma=0.1,
-            loss_weight=[1.0,1.0,1.0,1.0,1.0,1.0],
+            loss_weight=[1.0,1.0],
+            last_activation='sigmoid'
         ),
         data_config=BaseDataConfig(
             experiment_descriptor=experiment_name,
@@ -60,7 +61,7 @@ def do_work():
     )
 
     print(training_location)
-    execute_training(config=config, execution=train_resnet(), location=training_location)
+    execute_training(config=config, execution=train_resnet, location=training_location)
 
 
 if __name__ == "__main__":
