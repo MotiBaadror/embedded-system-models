@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from unittest.mock import Mock, patch
 
@@ -5,6 +6,7 @@ import torch
 from _pytest.fixtures import fixture
 from pytorch_lightning import LightningDataModule
 
+from dir_configs import add_rootpath
 from models.common.base_datamodule import BaseDataModule
 from models.common.base_model_config import BaseDataConfig
 
@@ -15,7 +17,7 @@ class TestBaseDataModule:
         @dataclass
         class Result:
             config = BaseDataConfig(
-            input_path='data/version_0',
+            input_path='data',
             output_path ='some-path',
             batch_size = 2,
             test_batch_size=1,
@@ -26,8 +28,9 @@ class TestBaseDataModule:
             num_workers=1,
             prefetch_factor=1,
             num_classes=1,
-                background_class=0,
-            split_file_name='train_test_split_dummy'
+            background_class=0,
+            split_file_name='train_test_split_dummy',
+            data_version=0
             )
             data_module = BaseDataModule(
                 config=config
@@ -46,9 +49,16 @@ class TestBaseDataModule:
         # mock_os.path.join = os.path.join
         split_file = results.data_module.get_split_file_name()
         ids = results.data_module.split_new_ids(split_file)
+        mock_os.listdir.assert_called_once_with(
+            add_rootpath(os.path.join(results.config.input_path, f'version_{results.config.data_version}/tensors'))
+        )
         assert len(ids[0]) == 6
         assert len(ids[1]) == 2
         assert len(ids[2]) == 2
+
+    # def test_load_split(self,results):
+
+
 
     def test_setup(self,results):
         results.data_module.split_new_ids = Mock()

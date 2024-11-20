@@ -17,7 +17,7 @@ def do_work():
     experiment_name = "test_run"
     tensor_version = 0
     dataset_name ='test_run'
-    input_path = training_location.value.input_path +f'/version_{tensor_version}'
+    input_path = training_location.value.input_path
 
     config = ResnetFullConfig(
         model_config=ResnetModelConfig(
@@ -56,6 +56,7 @@ def do_work():
             num_classes=2,
             # s3_tensor_path=f"s3://playai-cv-video-filter/data/yt_pubg_cs_data/version_{tensor_version}/tensors",
             background_class=0,
+            data_version=tensor_version,
             split_file_name='dummy_split',
         ),
     )

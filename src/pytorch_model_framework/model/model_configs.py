@@ -46,6 +46,7 @@ class DataConfig(yaml.YAMLObject):
     num_workers: int
     prefetch_factor: int
     num_classes: int
+    data_version: int
     background_class: int = 20
     dilation: DilationConfig = DilationConfig()
     s3_source_input_path: Optional[str] = None

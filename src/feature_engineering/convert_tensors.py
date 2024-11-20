@@ -47,7 +47,7 @@ def convert_tensors(cls,config:BaseFeatureConfig):
         )
         transformed_image = handler.transform_image(image)
         handler.save_file(
-            (torch.tensor(ClassMapping[cls].value,dtype=torch.float64),transformed_image),
+            (transformed_image,torch.tensor(ClassMapping[cls].value,dtype=torch.int64)),
             out_file
         )
         # break

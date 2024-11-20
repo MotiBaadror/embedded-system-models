@@ -12,7 +12,8 @@ class BaseCreativeDataset(Dataset):
         super().__init__()
         self.file_names = file_names
         self.transforms = transforms
-        self.base_path = add_rootpath(base_path)
+        self.base_path = base_path
+
 
     def __getitem__(self, id):
         x,y = torch.load(os.path.join(self.base_path,self.file_names[id]))

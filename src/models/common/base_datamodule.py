@@ -22,9 +22,10 @@ class BaseDataModule(LightningDataModule):
         self.test_dataset = None
         self.val_dataset = None
         self.base_path = add_rootpath(config.input_path)
+        self.tensor_path = os.path.join(self.base_path,f'version_{config.data_version}/tensors')
 
     def load_split_file(self, split_file):
-        with open(split_file, 'w') as f:
+        with open(split_file, 'r') as f:
             ids = json.loads(f.read())
         return ids['train_ids'], ids['test_ids'], ids['val_ids']
 
@@ -35,8 +36,9 @@ class BaseDataModule(LightningDataModule):
         split_file = os.path.join(self.base_path, file_name)
 
         return split_file
+
     def split_new_ids(self, split_file):
-        ids = os.listdir(self.base_path)
+        ids = os.listdir(self.tensor_path)
         rest_size = 1-self.config.train_size
         train_ids, rest_ids = train_test_split(ids,train_size= 1-rest_size,test_size= rest_size, shuffle=True, random_state=12345)
         val_ids, test_ids = train_test_split(rest_ids, train_size= self.config.val_size/rest_size, test_size= self.config.test_size/rest_size, shuffle=True, random_state=12345)
@@ -59,13 +61,13 @@ class BaseDataModule(LightningDataModule):
             train_ids, test_ids, val_ids = self.split_new_ids(split_file)
 
         self.train_dataset = BaseCreativeDataset(
-            file_names=train_ids, base_path=self.base_path, transforms=NoTransform()
+            file_names=train_ids, base_path=self.tensor_path, transforms=NoTransform()
         )
         self.test_dataset = BaseCreativeDataset(
-            file_names=test_ids, base_path=self.base_path, transforms=NoTransform()
+            file_names=test_ids, base_path=self.tensor_path, transforms=NoTransform()
         )
         self.val_dataset = BaseCreativeDataset(
-            file_names=val_ids, base_path=self.base_path, transforms=NoTransform()
+            file_names=val_ids, base_path=self.tensor_path, transforms=NoTransform()
         )
     
     def train_dataloader(self) -> TRAIN_DATALOADERS:
