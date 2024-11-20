@@ -14,9 +14,8 @@ def do_work():
     training_location = TrainingLocation.LOCAL
     output_path = training_location.value.output_path
 
-    experiment_name = "test_run"
-    tensor_version = 0
-    dataset_name ='test_run'
+    experiment_name = "test_run_dv_1"
+    tensor_version = 1
     input_path = training_location.value.input_path
 
     config = ResnetFullConfig(
@@ -28,7 +27,7 @@ def do_work():
             reduction='mean',
             head_layers=[1000,10,2],
             activation='relu',
-            num_epochs=2,
+            num_epochs=10,
             learning_rate=0.0001,
             checkpoint_path=None,
             # checkpoint_path='s3://playai-cv-video-filter/training/mvit_pubg_other_full_logits/lightning_logs/version_3/checkpoints/epoch=34-step=4095.ckpt',
@@ -57,7 +56,7 @@ def do_work():
             # s3_tensor_path=f"s3://playai-cv-video-filter/data/yt_pubg_cs_data/version_{tensor_version}/tensors",
             background_class=0,
             data_version=tensor_version,
-            split_file_name='dummy_split',
+            split_file_name='first_data_split',
         ),
     )
 

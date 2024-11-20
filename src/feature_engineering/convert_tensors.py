@@ -3,6 +3,7 @@ import os
 import torch
 from PIL import Image
 from torchvision import transforms
+from tqdm import tqdm
 
 from feature_engineering.base_feature_config import BaseFeatureConfig, ClassMapping
 
@@ -40,7 +41,8 @@ def convert_tensors(cls,config:BaseFeatureConfig):
     os.makedirs(config.output_dir, exist_ok=True)
     cls_path = os.path.join(config.base_path, cls)
     files = os.listdir(cls_path)
-    for file in files:
+
+    for file in tqdm(files):
         out_file = os.path.join(config.output_dir,f'{file[:-4]}.pt')
         image = handler.read_image(
             os.path.join(cls_path,file)

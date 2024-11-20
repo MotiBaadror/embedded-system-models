@@ -33,7 +33,7 @@ class BaseDataModule(LightningDataModule):
         file_name = self.config.split_file_name+(
             f'_train_{self.config.train_size}'
             f'_test_{self.config.test_size}_val_{self.config.val_size}.json')
-        split_file = os.path.join(self.base_path, file_name)
+        split_file = os.path.join(self.base_path,f'version_{self.config.data_version}', file_name)
 
         return split_file
 
