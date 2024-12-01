@@ -5,6 +5,7 @@ from typing import Optional
 import datasets
 import torch
 import pytorch_lightning as pl
+from torchmetrics import Accuracy
 from transformers import AutoConfig, AutoModelForSequenceClassification, get_linear_schedule_with_warmup, AdamW
 
 
@@ -36,18 +37,32 @@ class GLUETransformer(pl.LightningModule):
             trust_remote_code=True,
         )
         self.outputs = defaultdict(list)
+        self.train_accuracy = Accuracy(task='binary')
+        self.val_accuracy = Accuracy(task='binary')
+
+
 
     def forward(self, **inputs):
         return self.model(**inputs)
 
+    def get_cls(self, pred):
+        _, pred_labels = torch.max(pred, dim=-1)
+        return pred_labels
+
     def training_step(self, batch, batch_idx):
         outputs = self(**batch)
+        pred_labels = self.get_cls(pred=outputs[1])
+        self.train_accuracy.update(pred_labels, batch['labels'])
         loss = outputs[0]
+        self.log('training loss', value=loss, on_step=True, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         outputs = self(**batch)
         val_loss, logits = outputs[:2]
+        pred_labels = self.get_cls(pred=logits)
+        self.val_accuracy.update(pred_labels, batch['labels'])
+        self.log('val loss', value=val_loss,on_step=True,on_epoch=True)
 
         if self.hparams.num_labels > 1:
             preds = torch.argmax(logits, axis=1)
@@ -58,7 +73,12 @@ class GLUETransformer(pl.LightningModule):
 
         self.outputs[dataloader_idx].append({"loss": val_loss, "preds": preds, "labels": labels})
 
+    def on_train_epoch_end(self) -> None:
+        self.log('train_acc', self.train_accuracy.compute(), on_epoch=True, prog_bar = True, logger = True)
+        self.train_accuracy.reset()
     def on_validation_epoch_end(self):
+        self.log('val_acc', self.val_accuracy.compute(), on_epoch=True, prog_bar=True, logger=True)
+        self.val_accuracy.reset()
         if self.hparams.task_name == "mnli":
             for i, outputs in self.outputs.items():
                 # matched or mismatched

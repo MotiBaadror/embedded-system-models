@@ -44,6 +44,24 @@ class OnnxRunner():
         return features
 
 
+    def postprocess(self,logits):
+        # Apply softmax to convert logits to probabilities
+        exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))  # Stability trick
+        probabilities = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
+
+
+        # Class labels
+        classes = ["true", "false"]
+
+        # Find the index of the maximum probability
+        predicted_index = np.argmax(logits)
+
+        # Retrieve the corresponding label and probability
+        predicted_label = classes[predicted_index]
+        predicted_probability = probabilities[0][predicted_index]
+        return {'isScam':predicted_label,'confidence':float(predicted_probability)}
+
+
 
 
 
@@ -62,4 +80,5 @@ class OnnxRunner():
     #     print("Exported model has been tested with ONNXRuntime, and the result looks good!")
 
         print("onnx output: ", onnx_output)
+        onnx_output = self.postprocess(onnx_output)
         return onnx_output
