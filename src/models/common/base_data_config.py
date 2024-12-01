@@ -1,3 +1,0 @@
-from models.common.base_model_config import BaseDataConfig
-
-BaseDataConfig
