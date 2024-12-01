@@ -19,7 +19,8 @@ runner = OnnxRunner(
 
 @app.route('/predict', methods=["POST"])
 def main_app():
-    example_batch = request.json.get('example_batch')
+    text = request.json.get('text')
+    example_batch = {'text':[text]}
     logging.info(f'{example_batch}')
     out = runner.run_inference(example_batch=example_batch)
     logging.info('runner finished with output ',out)

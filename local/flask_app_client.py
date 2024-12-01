@@ -4,9 +4,10 @@ import requests
 url = "http://localhost:8000/predict"
 
 # Data to send in the POST request
-data = {
-    'example_batch':{'text':['Your bank account is locked.Click here to unlock. ']}
-}
+# data =
+    # 'example_batch':{'text':['Your bank account is locked.Click here to unlock. ']}
+data = {'text': 'WINNER!! As a valued network customer you have been selected to receivea '}
+
 
 # Send the POST request
 response = requests.post(url, json=data)
