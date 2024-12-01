@@ -15,3 +15,6 @@ This repo have action setup to image is pushed to dockerhub.
 #### Results
 ###### Loss and Accuracy Curve 
 ![Image](./resources/loss_curve.png)
+
+###### Sample Result 
+![image](./resources/sample_result.png)
