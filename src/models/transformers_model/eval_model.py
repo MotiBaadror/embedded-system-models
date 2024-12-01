@@ -1,15 +1,11 @@
 import os
 from dataclasses import dataclass
-
-import torch
-from pytorch_lightning.loggers import TensorBoardLogger
 from torchmetrics import Accuracy, ConfusionMatrix
 
 from dir_configs import add_rootpath
 from models.transformers_model.data_module import GLUEDataModule
 from models.transformers_model.entypoint_tf_model import MyTrainingConfig
 from models.transformers_model.model import GLUETransformer
-import pytorch_lightning as pl
 
 @dataclass
 class MyEvalConfig:
@@ -48,25 +44,23 @@ model.eval()
 accuracy = Accuracy(task='binary')
 conf_mat = ConfusionMatrix(task='binary')
 
-for data in dm.test_dataloader():
-    ids, mask = data['input_ids'], data['attention_mask']
-    input_values = dict(
-        input_ids=ids,
-        attention_mask=mask
-    )
-    # labels = data['labels']
+def eval_model(accuracy= accuracy, conf_mat=conf_mat, model=model, dm=dm):
 
+    for data in dm.test_dataloader():
+        ids, mask = data['input_ids'], data['attention_mask']
+        input_values = dict(
+            input_ids=ids,
+            attention_mask=mask
+        )
+        # labels = data['labels']
+        out = model(**data)
+        cls = model.get_cls(out[1])
+        if cls != data['labels']:
+            print(dm.tokenizer.decode(data['input_ids'][0]))
+        accuracy.update(cls, data['labels'])
+        conf_mat.update(cls,data['labels'])
 
-    out = model(**data)
-    cls = model.get_cls(out[1])
-    if cls != data['labels']:
-        print(dm.tokenizer.decode(data['input_ids'][0]))
-    accuracy.update(cls, data['labels'])
-    conf_mat.update(cls,data['labels'])
-
-print('acc  ', accuracy.compute())
-accuracy.reset()
-print('confusion matrix  ', conf_mat.compute())
-conf_mat.reset()
-    # break
-# trainer.fit(model, datamodule=dm, ckpt_path=config.checkpoint_path)
+    print('acc  ', accuracy.compute())
+    accuracy.reset()
+    print('confusion matrix  ', conf_mat.compute())
+    conf_mat.reset()
