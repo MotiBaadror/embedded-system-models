@@ -18,3 +18,16 @@ This repo have action setup to image is pushed to dockerhub.
 
 ###### Sample Result 
 ![image](./resources/sample_result.png)
+
+
+
+##### Key Points 
+1. Spam detection data used in this is quite imbalanced dataset so, model is trained using 
+high weight to the spam class [ 10,1] to achieve a good accuracy 
+2. Current model is 4.4 million params size is a lightweight model 
+3. Model is exported to `onnx` for lightweight deployment
+4. CI/CD actions are setup in this repo to smoothen the process of deployment 
+5. Docker image is already precompiled at the dockerhub with the model inside this, since model
+is small in size [1.5mb]
+6. Tokenizer itself have the truncation part implemented in this which help do preprocessing 
+
