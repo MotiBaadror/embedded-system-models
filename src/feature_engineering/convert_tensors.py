@@ -26,6 +26,8 @@ class ConvertTensorHandler:
         image = Image.open(path).convert("RGB")
         return image
 
+    # def read_csv(self):
+
     def transform_image(self, image):
         return self.transforms_list(image)
 

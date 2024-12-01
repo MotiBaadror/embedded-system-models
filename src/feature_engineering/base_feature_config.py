@@ -7,8 +7,8 @@ from dir_configs import add_rootpath
 
 
 class ClassMapping(Enum):
-    performing = 1
-    non_performing = 0
+    spam = 1
+    ham = 0
 
 
 @dataclass
