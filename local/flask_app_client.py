@@ -15,3 +15,5 @@ response = requests.post(url, json=data)
 # Print the response from the server
 print(f"Status Code: {response.status_code}")
 print(f"Response JSON: {response.text}")
+# curl -X POST "http://localhost:8000/predict" -H "Content-Type: application/json" -d '{"text": "WINNER!! As a valued network customer you have been selected to receivea "}'
+
