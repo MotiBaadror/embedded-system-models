@@ -10,7 +10,7 @@ except:
 
 app = Flask(__name__)
 
-runner = OnnxRunner(add_rootpath('data/model_repository/my_model_bs_1.onnx'))
+runner = OnnxRunner(add_rootpath('data/model_repository/spam_detector_v1.onnx'))
 
 @app.route('/predict', methods=["POST"])
 def main_app():
