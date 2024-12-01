@@ -80,10 +80,22 @@ class GLUEDataModule(pl.LightningDataModule):
 
         self.eval_splits = [x for x in self.dataset.keys() if "val" in x]
 
-    def prepare_data(self):
-        file_path = add_rootpath('data/raw_data/version_0/spam_ham_dataset.csv')
-        df = pd.read_csv(file_path)
-        df = df[['text', 'label_num']]
+    def prepare_sms_data(self):
+        data = pd.read_csv(add_rootpath('data/raw_data/version_1/spam.csv'),encoding= "ISO-8859-1")
+        df = data[['v2', 'v1']]
+        df['v1']=df['v1'].replace({'ham': 1, 'spam': 0})
+        return df
+        # df.columns = ['text','labels']
+
+
+
+    def prepare_data(self, sms_data=True):
+        if sms_data:
+            df = self.prepare_sms_data()
+        else:
+            file_path = add_rootpath('data/raw_data/version_1/spam.csv')
+            df = pd.read_csv(file_path)
+            df = df[['text', 'label_num']]
         df.columns = ['text','label']
         # print(df.shape)
         d = dict(

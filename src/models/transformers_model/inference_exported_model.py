@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from onnxruntime import SessionOptions, InferenceSession
 from transformers import AutoTokenizer
@@ -45,6 +47,7 @@ class OnnxRunner():
 
 
     def postprocess(self,logits):
+        logging.info('logits ',logits )
         # Apply softmax to convert logits to probabilities
         exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))  # Stability trick
         probabilities = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)

@@ -10,7 +10,12 @@ except:
 
 app = Flask(__name__)
 
-runner = OnnxRunner(add_rootpath('data/model_repository/spam_detector_v1.onnx'))
+tokenizer_model = 'hf-internal-testing/tiny-albert'#'albert-base-v2'#'hf-internal-testing/tiny-albert'
+exported_model = 'tiny_albert_spam_detector_352k_wt_10_1_v1.onnx'
+runner = OnnxRunner(
+    add_rootpath(f'data/model_repository/{exported_model}'),
+    tokenizer_model=tokenizer_model
+)
 
 @app.route('/predict', methods=["POST"])
 def main_app():

@@ -19,8 +19,8 @@ class TestDataModule:
             dm = GLUEDataModule(
                 "distilbert-base-uncased"
             )
-            dm.prepare_data()
-            dm.setup()
+            # dm.prepare_data()
+            # dm.setup()
             #
 
         return Result()
@@ -28,6 +28,9 @@ class TestDataModule:
     def test_init(self,result):
         assert isinstance(result.dm,GLUEDataModule)
 
+
+    def test_prepare_data(self,result):
+        result.dm.prepare_data()
 
 
     def test_setup(self,result):

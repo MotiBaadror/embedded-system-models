@@ -15,6 +15,7 @@ class GLUETransformer(pl.LightningModule):
         model_name_or_path: str,
         num_labels: int,
         task_name: str,
+        loss_weights: list[float],
         learning_rate: float = 2e-5,
         adam_epsilon: float = 1e-8,
         warmup_steps: int = 0,
@@ -22,6 +23,7 @@ class GLUETransformer(pl.LightningModule):
         train_batch_size: int = 32,
         eval_batch_size: int = 32,
         eval_splits: Optional[list] = None,
+
         **kwargs,
     ):
         super().__init__()
@@ -39,6 +41,7 @@ class GLUETransformer(pl.LightningModule):
         self.outputs = defaultdict(list)
         self.train_accuracy = Accuracy(task='binary')
         self.val_accuracy = Accuracy(task='binary')
+        self.loss_func = torch.nn.CrossEntropyLoss(weight=torch.tensor(loss_weights))
 
 
 
@@ -49,60 +52,78 @@ class GLUETransformer(pl.LightningModule):
         _, pred_labels = torch.max(pred, dim=-1)
         return pred_labels
 
+    def get_loss(self, pred,target):
+        value = self.loss_func(pred,target)
+        return value
+
     def training_step(self, batch, batch_idx):
-        outputs = self(**batch)
-        pred_labels = self.get_cls(pred=outputs[1])
+        ids, mask = batch['input_ids'], batch['attention_mask']
+        input_values = dict(
+            input_ids=ids,
+            attention_mask=mask
+        )
+        outputs = self(**input_values)
+        pred_labels = self.get_cls(pred=outputs[0])
         self.train_accuracy.update(pred_labels, batch['labels'])
-        loss = outputs[0]
+        # loss = outputs[0]
+        loss = self.get_loss(outputs[0],batch['labels'])
         self.log('training loss', value=loss, on_step=True, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
-        outputs = self(**batch)
-        val_loss, logits = outputs[:2]
+        ids, mask = batch['input_ids'], batch['attention_mask']
+        input_values = dict(
+            input_ids=ids,
+            attention_mask=mask
+        )
+        outputs = self(**input_values)
+        logits = outputs[0]
         pred_labels = self.get_cls(pred=logits)
+        loss = self.get_loss(outputs[0], batch['labels'])
         self.val_accuracy.update(pred_labels, batch['labels'])
-        self.log('val loss', value=val_loss,on_step=True,on_epoch=True)
+        self.log('val loss', value=loss,on_step=True,on_epoch=True)
+        return loss
 
-        if self.hparams.num_labels > 1:
-            preds = torch.argmax(logits, axis=1)
-        elif self.hparams.num_labels == 1:
-            preds = logits.squeeze()
+        # if self.hparams.num_labels > 1:
+        #     preds = torch.argmax(logits, axis=1)
+        # elif self.hparams.num_labels == 1:
+        #     preds = logits.squeeze()
+        #
+        # labels = batch["labels"]
 
-        labels = batch["labels"]
-
-        self.outputs[dataloader_idx].append({"loss": val_loss, "preds": preds, "labels": labels})
+        # self.outputs[dataloader_idx].append({"loss": val_loss, "preds": preds, "labels": labels})
 
     def on_train_epoch_end(self) -> None:
         self.log('train_acc', self.train_accuracy.compute(), on_epoch=True, prog_bar = True, logger = True)
         self.train_accuracy.reset()
+
     def on_validation_epoch_end(self):
         self.log('val_acc', self.val_accuracy.compute(), on_epoch=True, prog_bar=True, logger=True)
         self.val_accuracy.reset()
-        if self.hparams.task_name == "mnli":
-            for i, outputs in self.outputs.items():
-                # matched or mismatched
-                split = self.hparams.eval_splits[i].split("_")[-1]
-                preds = torch.cat([x["preds"] for x in outputs]).detach().cpu().numpy()
-                labels = torch.cat([x["labels"] for x in outputs]).detach().cpu().numpy()
-                loss = torch.stack([x["loss"] for x in outputs]).mean()
-                self.log(f"val_loss_{split}", loss, prog_bar=True)
-                split_metrics = {
-                    f"{k}_{split}": v for k, v in self.metric.compute(predictions=preds, references=labels).items()
-                }
-                self.log_dict(split_metrics, prog_bar=True)
-            return loss
+        # if self.hparams.task_name == "mnli":
+        #     for i, outputs in self.outputs.items():
+        #         # matched or mismatched
+        #         split = self.hparams.eval_splits[i].split("_")[-1]
+        #         preds = torch.cat([x["preds"] for x in outputs]).detach().cpu().numpy()
+        #         labels = torch.cat([x["labels"] for x in outputs]).detach().cpu().numpy()
+        #         loss = torch.stack([x["loss"] for x in outputs]).mean()
+        #         self.log(f"val_loss_{split}", loss, prog_bar=True)
+        #         split_metrics = {
+        #             f"{k}_{split}": v for k, v in self.metric.compute(predictions=preds, references=labels).items()
+        #         }
+        #         self.log_dict(split_metrics, prog_bar=True)
+        #     return loss
+        #
+        # flat_outputs = []
+        # for lst in self.outputs.values():
+        #     flat_outputs.extend(lst)
 
-        flat_outputs = []
-        for lst in self.outputs.values():
-            flat_outputs.extend(lst)
-
-        preds = torch.cat([x["preds"] for x in flat_outputs]).detach().cpu().numpy()
-        labels = torch.cat([x["labels"] for x in flat_outputs]).detach().cpu().numpy()
-        loss = torch.stack([x["loss"] for x in flat_outputs]).mean()
-        self.log("val_loss", loss, prog_bar=True)
-        self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
-        self.outputs.clear()
+        # preds = torch.cat([x["preds"] for x in flat_outputs]).detach().cpu().numpy()
+        # labels = torch.cat([x["labels"] for x in flat_outputs]).detach().cpu().numpy()
+        # loss = torch.stack([x["loss"] for x in flat_outputs]).mean()
+        # self.log("val_loss", loss, prog_bar=True)
+        # self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
+        # self.outputs.clear()
 
     def configure_optimizers(self):
         """Prepare optimizer and schedule (linear warmup and decay)."""

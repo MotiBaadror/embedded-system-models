@@ -5,7 +5,7 @@ url = "http://localhost:8000/predict"
 
 # Data to send in the POST request
 data = {
-    'example_batch':{'text':['your account is locked! hurry up']}
+    'example_batch':{'text':['Your bank account is locked.Click here to unlock. ']}
 }
 
 # Send the POST request
