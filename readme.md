@@ -2,7 +2,8 @@
 
 This repo have action setup to image is pushed to dockerhub. 
 
-# run prebuild docker image To run same
+# Run prebuild docker image 
+To run same
 1. `docker pull mbaadror/embedded-system-models:latest`
 2. `docker run --rm -it  -p 8000:8000 -t mbaadror/embedded-system-models:latest`
 3. send post request to url :`http://localhost:8000/predict` with  `data = {'text': 'WINNER!! As a valued network customer you have been selected to receivea '}`
